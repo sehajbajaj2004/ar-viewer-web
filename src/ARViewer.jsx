@@ -7,8 +7,8 @@ const models = [
     id: 1,
     name: "Modern Chair",
     thumbnail: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=300&h=200&fit=crop",
-    glbSrc: "../public/car_mini.glb",
-    usdzSrc: "../public/model.usdz",
+    glbSrc: "/car_mini.glb",
+    usdzSrc: "/model.usdz",
     description: "A sleek modern chair perfect for any room"
   },
   {
@@ -23,7 +23,7 @@ const models = [
     id: 3,
     name: "Floor Lamp",
     thumbnail: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=200&fit=crop",
-    glbSrc: "../public/car_mini.glb",
+    glbSrc: "../public/car_mini.glb", 
     usdzSrc: "../public/model.usdz",
     description: "Contemporary floor lamp with warm lighting"
   },

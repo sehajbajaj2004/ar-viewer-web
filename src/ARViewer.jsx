@@ -7,80 +7,80 @@ const models = [
     id: 1,
     name: "Modern Chair",
     thumbnail: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=300&h=200&fit=crop",
-    glbSrc: "https://whimsical-pie-821307.netlify.app/car_mini.glb",
-    usdzSrc: "https://whimsical-pie-821307.netlify.app/model.usdz",
+    glbSrc: "../public/car_mini.glb",
+    usdzSrc: "../public/model.usdz",
     description: "A sleek modern chair perfect for any room"
   },
   {
     id: 2,
     name: "Coffee Table",
     thumbnail: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=300&h=200&fit=crop",
-    glbSrc: "https://whimsical-pie-821307.netlify.app/car_mini.glb",
-    usdzSrc: "https://whimsical-pie-821307.netlify.app/model.usdz",
+    glbSrc: "../public/car_mini.glb",
+    usdzSrc: "../public/model.usdz",
     description: "Elegant coffee table for your living space"
   },
   {
     id: 3,
     name: "Floor Lamp",
     thumbnail: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=200&fit=crop",
-    glbSrc: "https://whimsical-pie-821307.netlify.app/car_mini.glb",
-    usdzSrc: "https://whimsical-pie-821307.netlify.app/model.usdz",
+    glbSrc: "../public/car_mini.glb",
+    usdzSrc: "../public/model.usdz",
     description: "Contemporary floor lamp with warm lighting"
   },
   {
     id: 4,
     name: "Bookshelf",
     thumbnail: "https://images.unsplash.com/photo-1562113530-57ba4cea77b0?w=300&h=200&fit=crop",
-    glbSrc: "https://whimsical-pie-821307.netlify.app/car_mini.glb",
-    usdzSrc: "https://whimsical-pie-821307.netlify.app/model.usdz",
+    glbSrc: "../public/car_mini.glb",
+    usdzSrc: "../public/model.usdz",
     description: "Spacious bookshelf for your collection"
   },
   {
     id: 5,
     name: "Dining Table",
     thumbnail: "https://images.unsplash.com/photo-1549497538-303791108f95?w=300&h=200&fit=crop",
-    glbSrc: "https://whimsical-pie-821307.netlify.app/car_mini.glb",
-    usdzSrc: "https://whimsical-pie-821307.netlify.app/model.usdz",
+    glbSrc: "../public/car_mini.glb",
+    usdzSrc: "../public/model.usdz",
     description: "Beautiful dining table for family meals"
   },
   {
     id: 6,
     name: "Sofa",
     thumbnail: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=300&h=200&fit=crop",
-    glbSrc: "https://whimsical-pie-821307.netlify.app/car_mini.glb",
-    usdzSrc: "https://whimsical-pie-821307.netlify.app/model.usdz",
+    glbSrc: "../public/car_mini.glb",
+    usdzSrc: "../public/model.usdz",
     description: "Comfortable sofa for relaxation"
   },
   {
     id: 7,
     name: "Desk",
     thumbnail: "https://images.unsplash.com/photo-1541558869434-2840d308329a?w=300&h=200&fit=crop",
-    glbSrc: "https://whimsical-pie-821307.netlify.app/car_mini.glb",
-    usdzSrc: "https://whimsical-pie-821307.netlify.app/model.usdz",
+    glbSrc: "../public/car_mini.glb",
+    usdzSrc: "../public/model.usdz",
     description: "Modern desk for your workspace"
   },
   {
     id: 8,
     name: "Wardrobe",
     thumbnail: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=200&fit=crop",
-    glbSrc: "https://whimsical-pie-821307.netlify.app/car_mini.glb",
-    usdzSrc: "https://whimsical-pie-821307.netlify.app/model.usdz",
+    glbSrc: "../public/car_mini.glb",
+    usdzSrc: "../public/model.usdz",
     description: "Spacious wardrobe for your clothes"
   },
   {
     id: 9,
     name: "Side Table",
     thumbnail: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=300&h=200&fit=crop",
-    glbSrc: "https://whimsical-pie-821307.netlify.app/car_mini.glb",
-    usdzSrc: "https://whimsical-pie-821307.netlify.app/model.usdz",
+    glbSrc: "../public/car_mini.glb",
+    usdzSrc: "../public/model.usdz",
     description: "Compact side table for small spaces"
   },
   {
     id: 10,
     name: "Mirror",
     thumbnail: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=200&fit=crop",
-    glbSrc: "https://whimsical-pie-821307.netlify.app/car_mini.glb",
-    usdzSrc: "https://whimsical-pie-821307.netlify.app/model.usdz",
+    glbSrc: "../public/car_mini.glb",
+    usdzSrc: "../public/model.usdz",
     description: "Elegant mirror for your room"
   }
 ];

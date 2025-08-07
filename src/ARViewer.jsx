@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronLeft, Eye, Play } from 'lucide-react';
+import { ChevronLeft, Eye, Play, Sparkles, Box, Smartphone } from 'lucide-react';
 
 // Mock 3D model data - replace with your actual model URLs
 const models = [
@@ -85,42 +85,162 @@ const models = [
   }
 ];
 
+// Custom Particles Component
+function Particles({ particleColors = ['#ffffff', '#ffffff'], particleCount = 200, particleSpread = 10, speed = 0.1, particleBaseSize = 100, moveParticlesOnHover = true, alphaParticles = false, disableRotation = false }) {
+  const [particles, setParticles] = useState([]);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const containerRef = React.useRef(null);
+
+  React.useEffect(() => {
+    const createParticles = () => {
+      const newParticles = [];
+      for (let i = 0; i < particleCount; i++) {
+        newParticles.push({
+          id: i,
+          x: Math.random() * 100,
+          y: Math.random() * 100,
+          size: Math.random() * 3 + 1,
+          opacity: alphaParticles ? Math.random() * 0.8 + 0.2 : 1,
+          rotation: Math.random() * 360,
+          rotationSpeed: (Math.random() - 0.5) * 2,
+          moveX: (Math.random() - 0.5) * speed,
+          moveY: (Math.random() - 0.5) * speed,
+          color: particleColors[Math.floor(Math.random() * particleColors.length)]
+        });
+      }
+      setParticles(newParticles);
+    };
+
+    createParticles();
+  }, [particleCount, particleColors, speed, alphaParticles]);
+
+  React.useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        setMousePosition({
+          x: ((e.clientX - rect.left) / rect.width) * 100,
+          y: ((e.clientY - rect.top) / rect.height) * 100
+        });
+      }
+    };
+
+    if (moveParticlesOnHover) {
+      document.addEventListener('mousemove', handleMouseMove);
+      return () => document.removeEventListener('mousemove', handleMouseMove);
+    }
+  }, [moveParticlesOnHover]);
+
+  React.useEffect(() => {
+    const animateParticles = () => {
+      setParticles(prevParticles => 
+        prevParticles.map(particle => {
+          let newX = particle.x + particle.moveX;
+          let newY = particle.y + particle.moveY;
+          
+          // Bounce off edges
+          if (newX < 0 || newX > 100) {
+            particle.moveX = -particle.moveX;
+            newX = particle.x + particle.moveX;
+          }
+          if (newY < 0 || newY > 100) {
+            particle.moveY = -particle.moveY;
+            newY = particle.y + particle.moveY;
+          }
+
+          // Mouse interaction
+          if (moveParticlesOnHover) {
+            const distanceX = mousePosition.x - particle.x;
+            const distanceY = mousePosition.y - particle.y;
+            const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+            
+            if (distance < particleSpread) {
+              const force = (particleSpread - distance) / particleSpread;
+              newX -= distanceX * force * 0.1;
+              newY -= distanceY * force * 0.1;
+            }
+          }
+
+          return {
+            ...particle,
+            x: newX,
+            y: newY,
+            rotation: disableRotation ? particle.rotation : particle.rotation + particle.rotationSpeed
+          };
+        })
+      );
+    };
+
+    const interval = setInterval(animateParticles, 50);
+    return () => clearInterval(interval);
+  }, [mousePosition, moveParticlesOnHover, particleSpread, disableRotation]);
+
+  return (
+    <div
+      ref={containerRef}
+      className="absolute inset-0 overflow-hidden pointer-events-none"
+      style={{ width: '100%', height: '100%' }}
+    >
+      {particles.map(particle => (
+        <div
+          key={particle.id}
+          className="absolute rounded-full"
+          style={{
+            left: `${particle.x}%`,
+            top: `${particle.y}%`,
+            width: `${particle.size}px`,
+            height: `${particle.size}px`,
+            backgroundColor: particle.color,
+            opacity: particle.opacity,
+            transform: `rotate(${particle.rotation}deg) translate(-50%, -50%)`,
+            transition: 'all 0.1s ease-out',
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
 // Welcome Screen Component
 function WelcomeScreen({ onStart }) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-600 via-blue-600 to-cyan-500 flex items-center justify-center p-4">
-      <div className="text-center text-white">
-        <div className="mb-8">
-          <h1 className="text-5xl font-bold mb-4 animate-pulse">AR Furniture</h1>
-          <p className="text-xl opacity-90 max-w-md mx-auto">
-            Explore amazing 3D models and see them in your space with augmented reality
+    <div className="min-h-screen bg-black flex items-center justify-center p-4 relative">
+      {/* Particles Background */}
+      <div style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}>
+        <Particles
+          particleColors={['#ffffff', '#f8fafc']}
+          particleCount={100}
+          particleSpread={15}
+          speed={0.05}
+          particleBaseSize={100}
+          moveParticlesOnHover={true}
+          alphaParticles={true}
+          disableRotation={false}
+        />
+      </div>
+      
+      <div className="text-center max-w-sm sm:max-w-md md:max-w-lg mx-auto relative z-10 px-2">
+        {/* Hero Section */}
+        <div className="mb-8 sm:mb-12">
+          <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-2xl mb-4 sm:mb-6">
+            <Box className="w-8 h-8 sm:w-10 sm:h-10 text-black" />
+          </div>
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-4 sm:mb-6 tracking-tight">
+            Web AR Viewer
+          </h1>
+          <p className="text-lg sm:text-xl text-gray-300 leading-relaxed">
+            View and visualize 3D models in your space using augmented reality technology.
           </p>
         </div>
         
+        {/* CTA Button */}
         <button
           onClick={onStart}
-          className="bg-white text-purple-600 px-8 py-4 rounded-full text-xl font-semibold hover:bg-purple-50 transform hover:scale-105 transition-all duration-300 shadow-lg flex items-center gap-3 mx-auto"
+          className="bg-white text-black px-8 sm:px-10 py-3 sm:py-4 rounded-2xl text-base sm:text-lg font-semibold hover:bg-gray-100 transform hover:scale-105 transition-all duration-300 shadow-lg shadow-white/10 flex items-center gap-3 mx-auto active:scale-95"
         >
-          <Play className="w-6 h-6" />
+          <Play className="w-5 h-5 sm:w-6 sm:h-6" />
           Start Exploring
         </button>
-        
-        <div className="mt-12 opacity-75">
-          <div className="flex justify-center space-x-8">
-            <div className="text-center">
-              <div className="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-2">
-                <Eye className="w-6 h-6" />
-              </div>
-              <p className="text-sm">View 3D Models</p>
-            </div>
-            <div className="text-center">
-              <div className="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-2">
-                <span className="text-lg">📱</span>
-              </div>
-              <p className="text-sm">AR Experience</p>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );
@@ -129,37 +249,44 @@ function WelcomeScreen({ onStart }) {
 // Model Selection Screen Component
 function ModelSelectionScreen({ onSelectModel, onBack }) {
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center mb-8 pt-4">
-          <button
-            onClick={onBack}
-            className="mr-4 p-2 rounded-full hover:bg-gray-200 transition-colors"
-          >
-            <ChevronLeft className="w-6 h-6" />
-          </button>
-          <h1 className="text-3xl font-bold text-gray-800">Choose a 3D Model</h1>
+    <div className="min-h-screen bg-black">
+      {/* Header */}
+      <div className="bg-[#121212] border-b border-gray-800 sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-4 py-4 sm:py-6">
+          <div className="flex items-center">
+            <button
+              onClick={onBack}
+              className="mr-3 sm:mr-4 p-2 rounded-xl hover:bg-gray-800 transition-colors active:scale-95"
+            >
+              <ChevronLeft className="w-6 h-6 text-white" />
+            </button>
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-white">3D Collection</h1>
+              <p className="text-gray-400 mt-1 text-sm sm:text-base">Choose a model to explore in AR</p>
+            </div>
+          </div>
         </div>
-        
-        {/* Models Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+      </div>
+      
+      {/* Models Grid */}
+      <div className="max-w-7xl mx-auto p-3 sm:p-6">
+        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
           {models.map((model) => (
             <div
               key={model.id}
               onClick={() => onSelectModel(model)}
-              className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:scale-105 overflow-hidden"
+              className="bg-[#121212] rounded-xl sm:rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:scale-[1.02] overflow-hidden group border border-gray-800 active:scale-95"
             >
-              <div className="aspect-square overflow-hidden">
+              <div className="aspect-square overflow-hidden bg-gray-800">
                 <img
                   src={model.thumbnail}
                   alt={model.name}
-                  className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
               </div>
-              <div className="p-4">
-                <h3 className="font-semibold text-gray-800 mb-1">{model.name}</h3>
-                <p className="text-sm text-gray-600 line-clamp-2">{model.description}</p>
+              <div className="p-3 sm:p-4 md:p-5">
+                <h3 className="font-semibold text-white mb-1 sm:mb-2 text-sm sm:text-base md:text-lg">{model.name}</h3>
+                <p className="text-gray-400 text-xs sm:text-sm leading-relaxed line-clamp-2">{model.description}</p>
               </div>
             </div>
           ))}
@@ -169,30 +296,32 @@ function ModelSelectionScreen({ onSelectModel, onBack }) {
   );
 }
 
-// AR Viewer Component (Modified from your original)
+// AR Viewer Component
 function ARViewer({ model, onBack }) {
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-black">
       {/* Header */}
-      <div className="bg-white shadow-sm p-4">
-        <div className="flex items-center max-w-6xl mx-auto">
-          <button
-            onClick={onBack}
-            className="mr-4 p-2 rounded-full hover:bg-gray-200 transition-colors"
-          >
-            <ChevronLeft className="w-6 h-6" />
-          </button>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-800">{model.name}</h1>
-            <p className="text-gray-600">{model.description}</p>
+      <div className="bg-[#121212] border-b border-gray-800 sticky top-0 z-10">
+        <div className="max-w-6xl mx-auto px-4 py-4 sm:py-6">
+          <div className="flex items-center">
+            <button
+              onClick={onBack}
+              className="mr-3 sm:mr-4 p-2 rounded-xl hover:bg-gray-800 transition-colors active:scale-95"
+            >
+              <ChevronLeft className="w-6 h-6 text-white" />
+            </button>
+            <div className="flex-1 min-w-0">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white truncate">{model.name}</h1>
+              <p className="text-gray-400 mt-1 text-sm sm:text-base line-clamp-1">{model.description}</p>
+            </div>
           </div>
         </div>
       </div>
       
       {/* 3D Model Viewer */}
-      <div className="p-4 max-w-4xl mx-auto">
-        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-          <div style={{ height: '70vh' }}>
+      <div className="max-w-6xl mx-auto p-3 sm:p-6">
+        <div className="bg-[#3c3c3c] rounded-2xl sm:rounded-3xl shadow-lg overflow-hidden border border-gray-800">
+          <div style={{ height: '60vh' }} className="bg-[#121212] relative">
             <model-viewer
               src={model.glbSrc}
               ar
@@ -202,26 +331,48 @@ function ARViewer({ model, onBack }) {
               camera-controls
               alt={model.name}
               style={{ width: '100%', height: '100%' }}
-              className="rounded-t-xl"
+              className="rounded-t-2xl sm:rounded-t-3xl bg-[#242424]"
             >
               <button 
                 slot="ar-button"
-                className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-purple-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-purple-700 transition-colors shadow-lg flex items-center gap-2"
+                className="absolute bottom-4 sm:bottom-6 left-1/2 transform -translate-x-1/2 bg-white text-black px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl text-sm sm:text-base font-semibold hover:bg-gray-100 transition-all duration-300 shadow-lg flex items-center gap-2 sm:gap-3 group active:scale-95"
               >
-                <span>👁️</span>
-                See in My Room
+                <Smartphone className="w-4 h-4 sm:w-5 sm:h-5 group-hover:scale-110 transition-transform" />
+                View in My Room
               </button>
             </model-viewer>
           </div>
           
-          <div className="p-6">
-            <h2 className="text-xl font-semibold mb-2">About this model</h2>
-            <p className="text-gray-600 mb-4">{model.description}</p>
-            
-            <div className="text-sm text-gray-500">
-              <p>• Rotate and zoom to explore the 3D model</p>
-              <p>• Tap "See in My Room" to view in augmented reality</p>
-              <p>• Compatible with AR-enabled devices</p>
+          <div className="p-4 sm:p-6 md:p-8">
+            <div className="space-y-6 md:space-y-0 md:grid md:grid-cols-2 md:gap-8">
+              <div>
+                <h2 className="text-xl sm:text-2xl font-semibold text-white mb-3 sm:mb-4">About this model</h2>
+                <p className="text-gray-300 mb-4 sm:mb-6 leading-relaxed text-sm sm:text-base">{model.description}</p>
+              </div>
+              
+              <div className="bg-[#242424] rounded-xl sm:rounded-2xl p-4 sm:p-6">
+                <h3 className="text-lg font-semibold text-white mb-3 sm:mb-4">How to use</h3>
+                <div className="space-y-3 text-sm text-gray-300">
+                  <div className="flex items-start gap-3">
+                    <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <span className="text-white text-xs">1</span>
+                    </div>
+                    <p>Drag to rotate and pinch to zoom the 3D model</p>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <span className="text-white text-xs">2</span>
+                    </div>
+                    <p>Tap "View in My Room" for augmented reality</p>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-6 h-6 bg-purple-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <span className="text-white text-xs">3</span>
+                    </div>
+                    <p>Point your camera at a flat surface for best results</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

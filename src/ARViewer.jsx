@@ -1,9 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import {
   ChevronLeft,
-  Eye,
   Play,
-  Sparkles,
+  Square,
   Box,
   Smartphone,
 } from "lucide-react";
@@ -192,109 +191,112 @@ const models = [
   },
 ];
 
-// Custom Particles Component
-function Particles({
+// Optimized Particles Component
+const Particles = React.memo(function Particles({
   particleColors = ["#ffffff", "#ffffff"],
   particleCount = 200,
   particleSpread = 10,
   speed = 0.1,
-  particleBaseSize = 100,
   moveParticlesOnHover = true,
   alphaParticles = false,
   disableRotation = false,
 }) {
   const [particles, setParticles] = useState([]);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const containerRef = React.useRef(null);
+  const containerRef = useRef(null);
+  const animationFrameRef = useRef(null);
 
-  React.useEffect(() => {
-    const createParticles = () => {
-      const newParticles = [];
-      for (let i = 0; i < particleCount; i++) {
-        newParticles.push({
-          id: i,
-          x: Math.random() * 100,
-          y: Math.random() * 100,
-          size: Math.random() * 3 + 1,
-          opacity: alphaParticles ? Math.random() * 0.8 + 0.2 : 1,
-          rotation: Math.random() * 360,
-          rotationSpeed: (Math.random() - 0.5) * 2,
-          moveX: (Math.random() - 0.5) * speed,
-          moveY: (Math.random() - 0.5) * speed,
-          color:
-            particleColors[Math.floor(Math.random() * particleColors.length)],
-        });
-      }
-      setParticles(newParticles);
-    };
-
-    createParticles();
+  const initialParticles = useMemo(() => {
+    const newParticles = [];
+    for (let i = 0; i < particleCount; i++) {
+      newParticles.push({
+        id: i,
+        x: Math.random() * 100,
+        y: Math.random() * 100,
+        size: Math.random() * 3 + 1,
+        opacity: alphaParticles ? Math.random() * 0.8 + 0.2 : 1,
+        rotation: Math.random() * 360,
+        rotationSpeed: (Math.random() - 0.5) * 2,
+        moveX: (Math.random() - 0.5) * speed,
+        moveY: (Math.random() - 0.5) * speed,
+        color: particleColors[Math.floor(Math.random() * particleColors.length)],
+      });
+    }
+    return newParticles;
   }, [particleCount, particleColors, speed, alphaParticles]);
 
-  React.useEffect(() => {
-    const handleMouseMove = (e) => {
-      if (containerRef.current) {
-        const rect = containerRef.current.getBoundingClientRect();
-        setMousePosition({
-          x: ((e.clientX - rect.left) / rect.width) * 100,
-          y: ((e.clientY - rect.top) / rect.height) * 100,
-        });
-      }
-    };
+  useEffect(() => {
+    setParticles(initialParticles);
+  }, [initialParticles]);
 
+  const handleMouseMove = useCallback((e) => {
+    if (containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      setMousePosition({
+        x: ((e.clientX - rect.left) / rect.width) * 100,
+        y: ((e.clientY - rect.top) / rect.height) * 100,
+      });
+    }
+  }, []);
+
+  useEffect(() => {
     if (moveParticlesOnHover) {
       document.addEventListener("mousemove", handleMouseMove);
       return () => document.removeEventListener("mousemove", handleMouseMove);
     }
-  }, [moveParticlesOnHover]);
+  }, [moveParticlesOnHover, handleMouseMove]);
 
-  React.useEffect(() => {
-    const animateParticles = () => {
-      setParticles((prevParticles) =>
-        prevParticles.map((particle) => {
-          let newX = particle.x + particle.moveX;
-          let newY = particle.y + particle.moveY;
+  const animateParticles = useCallback(() => {
+    setParticles((prevParticles) =>
+      prevParticles.map((particle) => {
+        let newX = particle.x + particle.moveX;
+        let newY = particle.y + particle.moveY;
 
-          // Bounce off edges
-          if (newX < 0 || newX > 100) {
-            particle.moveX = -particle.moveX;
-            newX = particle.x + particle.moveX;
+        // Bounce off edges
+        if (newX < 0 || newX > 100) {
+          particle.moveX = -particle.moveX;
+          newX = particle.x + particle.moveX;
+        }
+        if (newY < 0 || newY > 100) {
+          particle.moveY = -particle.moveY;
+          newY = particle.y + particle.moveY;
+        }
+
+        // Mouse interaction
+        if (moveParticlesOnHover) {
+          const distanceX = mousePosition.x - particle.x;
+          const distanceY = mousePosition.y - particle.y;
+          const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+
+          if (distance < particleSpread) {
+            const force = (particleSpread - distance) / particleSpread;
+            newX -= distanceX * force * 0.1;
+            newY -= distanceY * force * 0.1;
           }
-          if (newY < 0 || newY > 100) {
-            particle.moveY = -particle.moveY;
-            newY = particle.y + particle.moveY;
-          }
+        }
 
-          // Mouse interaction
-          if (moveParticlesOnHover) {
-            const distanceX = mousePosition.x - particle.x;
-            const distanceY = mousePosition.y - particle.y;
-            const distance = Math.sqrt(
-              distanceX * distanceX + distanceY * distanceY
-            );
+        return {
+          ...particle,
+          x: newX,
+          y: newY,
+          rotation: disableRotation
+            ? particle.rotation
+            : particle.rotation + particle.rotationSpeed,
+        };
+      })
+    );
 
-            if (distance < particleSpread) {
-              const force = (particleSpread - distance) / particleSpread;
-              newX -= distanceX * force * 0.1;
-              newY -= distanceY * force * 0.1;
-            }
-          }
-
-          return {
-            ...particle,
-            x: newX,
-            y: newY,
-            rotation: disableRotation
-              ? particle.rotation
-              : particle.rotation + particle.rotationSpeed,
-          };
-        })
-      );
-    };
-
-    const interval = setInterval(animateParticles, 50);
-    return () => clearInterval(interval);
+    animationFrameRef.current = requestAnimationFrame(animateParticles);
   }, [mousePosition, moveParticlesOnHover, particleSpread, disableRotation]);
+
+  useEffect(() => {
+    animationFrameRef.current = requestAnimationFrame(animateParticles);
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, [animateParticles]);
 
   return (
     <div
@@ -320,13 +322,12 @@ function Particles({
       ))}
     </div>
   );
-}
+});
 
 // Welcome Screen Component
-function WelcomeScreen({ onStart }) {
+const WelcomeScreen = React.memo(function WelcomeScreen({ onStart }) {
   return (
     <div className="min-h-screen bg-black flex items-center justify-center p-4 relative">
-      {/* Particles Background */}
       <div
         style={{
           width: "100%",
@@ -341,7 +342,6 @@ function WelcomeScreen({ onStart }) {
           particleCount={100}
           particleSpread={15}
           speed={0.5}
-          particleBaseSize={100}
           moveParticlesOnHover={true}
           alphaParticles={true}
           disableRotation={false}
@@ -349,7 +349,6 @@ function WelcomeScreen({ onStart }) {
       </div>
 
       <div className="text-center max-w-sm sm:max-w-md md:max-w-lg mx-auto relative z-10 px-2">
-        {/* Hero Section */}
         <div className="mb-8 sm:mb-12">
           <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-2xl mb-4 sm:mb-6">
             <Box className="w-8 h-8 sm:w-10 sm:h-10 text-black" />
@@ -363,7 +362,6 @@ function WelcomeScreen({ onStart }) {
           </p>
         </div>
 
-        {/* CTA Button */}
         <button
           onClick={onStart}
           className="bg-white text-black px-8 sm:px-10 py-3 sm:py-4 rounded-2xl text-base sm:text-lg font-semibold hover:bg-gray-100 transform hover:scale-105 transition-all duration-300 shadow-lg shadow-white/10 flex items-center gap-3 mx-auto active:scale-95"
@@ -374,13 +372,12 @@ function WelcomeScreen({ onStart }) {
       </div>
     </div>
   );
-}
+});
 
 // Model Selection Screen Component
-function ModelSelectionScreen({ onSelectModel, onBack }) {
+const ModelSelectionScreen = React.memo(function ModelSelectionScreen({ onSelectModel, onBack }) {
   return (
     <div className="min-h-screen bg-black">
-      {/* Header */}
       <div className="bg-[#121212] border-b border-gray-800 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 py-4 sm:py-6">
           <div className="flex items-center">
@@ -402,7 +399,6 @@ function ModelSelectionScreen({ onSelectModel, onBack }) {
         </div>
       </div>
 
-      {/* Models Grid */}
       <div className="max-w-7xl mx-auto p-3 sm:p-6">
         <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
           {models.map((model) => (
@@ -416,6 +412,7 @@ function ModelSelectionScreen({ onSelectModel, onBack }) {
                   src={model.thumbnail}
                   alt={model.name}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  loading="lazy"
                 />
               </div>
               <div className="p-3 sm:p-4 md:p-5">
@@ -432,61 +429,70 @@ function ModelSelectionScreen({ onSelectModel, onBack }) {
       </div>
     </div>
   );
+});
+
+// Animation Control Hook
+function useAnimationControl() {
+  const [activeAnimations, setActiveAnimations] = useState(new Map());
+ 
+  const toggleAnimation = useCallback((animationName, modelViewer) => {
+    if (!modelViewer) return;
+
+    setActiveAnimations(prev => {
+      const newMap = new Map(prev);
+      const isActive = newMap.get(animationName);
+
+      if (isActive) {
+        // Stop animation
+        modelViewer.pause();
+        modelViewer.animationName = null;
+        modelViewer.setAttribute("animation-loop", "false");
+        newMap.set(animationName, false);
+      } else {
+        // Start animation
+        modelViewer.animationName = animationName;
+        modelViewer.setAttribute("animation-loop", "true");
+        modelViewer.currentTime = 0;
+        modelViewer.play();
+        newMap.set(animationName, true);
+      }
+
+      return newMap;
+    });
+  }, []);
+
+  const stopAllAnimations = useCallback((modelViewer) => {
+    if (!modelViewer) return;
+   
+    modelViewer.pause();
+    modelViewer.animationName = null;
+    setActiveAnimations(new Map());
+  }, []);
+
+  return { activeAnimations, toggleAnimation, stopAllAnimations };
 }
 
 // AR Viewer Component
 function ARViewer({ model, onBack }) {
-  const modelViewerRef = React.useRef(null);
-  const [isAnimating, setIsAnimating] = useState(false);
+  const modelViewerRef = useRef(null);
+  const { activeAnimations, toggleAnimation, stopAllAnimations } = useAnimationControl();
 
-  // Handle hotspot clicks
-  const handleHotspotClick = React.useCallback(
-    async (animationName) => {
-      if (!modelViewerRef.current || isAnimating) return;
-
-      setIsAnimating(true);
-      const modelViewer = modelViewerRef.current;
-
-      try {
-        modelViewer.pause();
-        modelViewer.animationName = animationName;
-        modelViewer.setAttribute("animation-loop", "false"); // prevent infinite loop
-
-        for (let i = 0; i < 2; i++) {
-          modelViewer.currentTime = 0;
-          modelViewer.play();
-
-          await new Promise((resolve) => {
-            const onFinished = () => {
-              modelViewer.removeEventListener("finished", onFinished);
-              resolve();
-            };
-            modelViewer.addEventListener("finished", onFinished);
-          });
-        }
-
-        modelViewer.pause();
-        modelViewer.animationName = null;
-      } catch (error) {
-        console.error("Animation error:", error);
-      } finally {
-        setIsAnimating(false);
-      }
+  const handleHotspotClick = useCallback(
+    (animationName) => {
+      if (!modelViewerRef.current) return;
+      toggleAnimation(animationName, modelViewerRef.current);
     },
-    [isAnimating]
+    [toggleAnimation]
   );
 
   // Set up hotspot event listeners
-  React.useEffect(() => {
+  useEffect(() => {
     const modelViewer = modelViewerRef.current;
     if (!modelViewer) return;
 
     const handleLoad = () => {
-      // Add event listeners to all hotspots
       model.hotspots?.forEach((hotspot) => {
-        const hotspotElement = modelViewer.querySelector(
-          `[slot="${hotspot.slot}"]`
-        );
+        const hotspotElement = modelViewer.querySelector(`[slot="${hotspot.slot}"]`);
         if (hotspotElement) {
           hotspotElement.addEventListener("click", () => {
             handleHotspotClick(hotspot.animation);
@@ -499,12 +505,12 @@ function ARViewer({ model, onBack }) {
 
     return () => {
       modelViewer.removeEventListener("load", handleLoad);
+      stopAllAnimations(modelViewer);
     };
-  }, [model, handleHotspotClick]);
+  }, [model, handleHotspotClick, stopAllAnimations]);
 
   return (
     <div className="min-h-screen bg-black">
-      {/* Custom Styles for Hotspots */}
       <style>{`
         .hotspot {
           display: block;
@@ -528,6 +534,11 @@ function ARViewer({ model, onBack }) {
 
         .hotspot:active {
           transform: scale(1.1);
+        }
+
+        .hotspot.active {
+          background: linear-gradient(135deg, #ef4444, #dc2626);
+          animation: pulse-red 1s infinite;
         }
 
         .hotspot::before {
@@ -554,6 +565,18 @@ function ARViewer({ model, onBack }) {
           }
         }
 
+        @keyframes pulse-red {
+          0% {
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4), 0 0 0 0 rgba(239, 68, 68, 0.7);
+          }
+          70% {
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4), 0 0 0 10px rgba(239, 68, 68, 0);
+          }
+          100% {
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4), 0 0 0 0 rgba(239, 68, 68, 0);
+          }
+        }
+
         .annotation {
           background: rgba(0, 0, 0, 0.8);
           color: white;
@@ -574,7 +597,6 @@ function ARViewer({ model, onBack }) {
         }
       `}</style>
 
-      {/* Header */}
       <div className="bg-[#121212] border-b border-gray-800 sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 py-4 sm:py-6">
           <div className="flex items-center">
@@ -592,17 +614,16 @@ function ARViewer({ model, onBack }) {
                 {model.description}
               </p>
             </div>
-            {isAnimating && (
-              <div className="flex items-center gap-2 text-blue-400">
-                <div className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
-                <span className="text-sm">Playing...</span>
+            {Array.from(activeAnimations.values()).some(active => active) && (
+              <div className="flex items-center gap-2 text-red-400">
+                <div className="w-4 h-4 border-2 border-red-400 border-t-transparent rounded-full animate-spin"></div>
+                <span className="text-sm">Animating...</span>
               </div>
             )}
           </div>
         </div>
       </div>
 
-      {/* 3D Model Viewer */}
       <div className="max-w-6xl mx-auto p-3 sm:p-6">
         <div className="bg-[#3c3c3c] rounded-2xl sm:rounded-3xl shadow-lg overflow-hidden border border-gray-800">
           <div style={{ height: "60vh" }} className="bg-[#121212] relative">
@@ -614,22 +635,26 @@ function ARViewer({ model, onBack }) {
               ios-src={model.usdzSrc}
               auto-rotate
               camera-controls
-              animation-loop="false" // ensure finished event fires
+              animation-loop="false"
               alt={model.name}
               style={{ width: "100%", height: "100%" }}
               className="rounded-t-2xl sm:rounded-t-3xl bg-[#242424]"
             >
-              {/* Render hotspots */}
               {model.hotspots?.map((hotspot, index) => (
                 <button
                   key={index}
-                  className="hotspot"
+                  className={`hotspot ${activeAnimations.get(hotspot.animation) ? 'active' : ''}`}
                   slot={hotspot.slot}
                   data-position={hotspot.position}
                   data-normal={hotspot.normal}
                   title={hotspot.title}
                 >
-                  <div className="annotation">{hotspot.title}</div>
+                  <div className="annotation">
+                    {activeAnimations.get(hotspot.animation)
+                      ? `Stop ${hotspot.title}`
+                      : `Start ${hotspot.title}`
+                    }
+                  </div>
                 </button>
               ))}
 
@@ -653,20 +678,24 @@ function ARViewer({ model, onBack }) {
                   {model.description}
                 </p>
 
-                {/* Interactive Hotspots Info */}
                 {model.hotspots && model.hotspots.length > 0 && (
                   <div className="mt-4">
                     <h3 className="text-lg font-semibold text-white mb-2">
-                      Interactive Hotspots
+                      Animation Controls
                     </h3>
                     <div className="space-y-2">
                       {model.hotspots.map((hotspot, index) => (
                         <div
                           key={index}
-                          className="flex items-center gap-2 text-sm text-gray-300"
+                          className="flex items-center justify-between gap-2 text-sm"
                         >
-                          <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                          <span>{hotspot.title} - Click to animate</span>
+                          <div className="flex items-center gap-2 text-gray-300">
+                            <div className={`w-3 h-3 rounded-full ${activeAnimations.get(hotspot.animation) ? 'bg-red-500 animate-pulse' : 'bg-blue-500'}`}></div>
+                            <span>{hotspot.title}</span>
+                          </div>
+                          <span className={`text-xs px-2 py-1 rounded ${activeAnimations.get(hotspot.animation) ? 'bg-red-900 text-red-300' : 'bg-gray-700 text-gray-300'}`}>
+                            {activeAnimations.get(hotspot.animation) ? 'Running' : 'Stopped'}
+                          </span>
                         </div>
                       ))}
                     </div>
@@ -689,7 +718,7 @@ function ARViewer({ model, onBack }) {
                     <div className="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                       <span className="text-white text-xs">2</span>
                     </div>
-                    <p>Click the blue hotspots to trigger animations</p>
+                    <p>Click blue hotspots to start animations, red to stop them</p>
                   </div>
                   <div className="flex items-start gap-3">
                     <div className="w-6 h-6 bg-purple-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -701,9 +730,7 @@ function ARViewer({ model, onBack }) {
                     <div className="w-6 h-6 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                       <span className="text-white text-xs">4</span>
                     </div>
-                    <p>
-                      Point your camera at a flat surface for best AR results
-                    </p>
+                    <p>Point your camera at a flat surface for best AR results</p>
                   </div>
                 </div>
               </div>
@@ -717,38 +744,39 @@ function ARViewer({ model, onBack }) {
 
 // Main App Component
 export default function App() {
-  const [currentScreen, setCurrentScreen] = useState("welcome"); // 'welcome', 'selection', 'viewer'
+  const [currentScreen, setCurrentScreen] = useState("welcome");
   const [selectedModel, setSelectedModel] = useState(null);
 
-  const handleStart = () => {
+  const handleStart = useCallback(() => {
     setCurrentScreen("selection");
-  };
+  }, []);
 
-  const handleSelectModel = (model) => {
+  const handleSelectModel = useCallback((model) => {
     setSelectedModel(model);
     setCurrentScreen("viewer");
-  };
+  }, []);
 
-  const handleBackToSelection = () => {
+  const handleBackToSelection = useCallback(() => {
     setCurrentScreen("selection");
     setSelectedModel(null);
-  };
+  }, []);
 
-  const handleBackToWelcome = () => {
+  const handleBackToWelcome = useCallback(() => {
     setCurrentScreen("welcome");
     setSelectedModel(null);
-  };
+  }, []);
 
   // Load model-viewer script
-  React.useEffect(() => {
+  useEffect(() => {
     const script = document.createElement("script");
     script.type = "module";
-    script.src =
-      "https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js";
+    script.src = "https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js";
     document.head.appendChild(script);
 
     return () => {
-      document.head.removeChild(script);
+      if (document.head.contains(script)) {
+        document.head.removeChild(script);
+      }
     };
   }, []);
 

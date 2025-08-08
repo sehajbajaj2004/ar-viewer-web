@@ -9,80 +9,17 @@ const models = [
     thumbnail: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=300&h=200&fit=crop",
     glbSrc: "/car_mini.glb",
     usdzSrc: "/model.usdz",
-    description: "A sleek modern chair perfect for any room"
+    description: "A sleek modern chair perfect for any room",
+    hotspots: [
+      {
+        slot: "hotspot-seat",
+        position: "0 0.5 0",
+        normal: "0 1 0",
+        animation: "Car Engine",
+        title: "Car Engine"
+      },
+    ]
   },
-  {
-    id: 2,
-    name: "Coffee Table",
-    thumbnail: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=300&h=200&fit=crop",
-    glbSrc: "/car_mini.glb",
-    usdzSrc: "/model.usdz",
-    description: "Elegant coffee table for your living space"
-  },
-  {
-    id: 3,
-    name: "Floor Lamp",
-    thumbnail: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=200&fit=crop",
-    glbSrc: "/car_mini.glb", 
-    usdzSrc: "/model.usdz",
-    description: "Contemporary floor lamp with warm lighting"
-  },
-  {
-    id: 4,
-    name: "Bookshelf",
-    thumbnail: "https://images.unsplash.com/photo-1562113530-57ba4cea77b0?w=300&h=200&fit=crop",
-    glbSrc: "/car_mini.glb",
-    usdzSrc: "/model.usdz",
-    description: "Spacious bookshelf for your collection"
-  },
-  {
-    id: 5,
-    name: "Dining Table",
-    thumbnail: "https://images.unsplash.com/photo-1549497538-303791108f95?w=300&h=200&fit=crop",
-    glbSrc: "/car_mini.glb",
-    usdzSrc: "/model.usdz",
-    description: "Beautiful dining table for family meals"
-  },
-  {
-    id: 6,
-    name: "Sofa",
-    thumbnail: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=300&h=200&fit=crop",
-    glbSrc: "/car_mini.glb",
-    usdzSrc: "/model.usdz",
-    description: "Comfortable sofa for relaxation"
-  },
-  {
-    id: 7,
-    name: "Desk",
-    thumbnail: "https://images.unsplash.com/photo-1541558869434-2840d308329a?w=300&h=200&fit=crop",
-    glbSrc: "/car_mini.glb",
-    usdzSrc: "/model.usdz",
-    description: "Modern desk for your workspace"
-  },
-  {
-    id: 8,
-    name: "Wardrobe",
-    thumbnail: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=200&fit=crop",
-    glbSrc: "/car_mini.glb",
-    usdzSrc: "/model.usdz",
-    description: "Spacious wardrobe for your clothes"
-  },
-  {
-    id: 9,
-    name: "Side Table",
-    thumbnail: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=300&h=200&fit=crop",
-    glbSrc: "/car_mini.glb",
-    usdzSrc: "/model.usdz",
-    description: "Compact side table for small spaces"
-  },
-  {
-    id: 10,
-    name: "Mirror",
-    thumbnail: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=200&fit=crop",
-    glbSrc: "/car_mini.glb",
-    usdzSrc: "/model.usdz",
-    description: "Elegant mirror for your room"
-  }
 ];
 
 // Custom Particles Component
@@ -298,8 +235,148 @@ function ModelSelectionScreen({ onSelectModel, onBack }) {
 
 // AR Viewer Component
 function ARViewer({ model, onBack }) {
+  const modelViewerRef = React.useRef(null);
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  // Handle hotspot clicks
+  const handleHotspotClick = React.useCallback(async (animationName) => {
+    if (!modelViewerRef.current || isAnimating) return;
+    
+    setIsAnimating(true);
+    const modelViewer = modelViewerRef.current;
+    
+    try {
+      // Stop any current animation
+      modelViewer.pause();
+      
+      // Set the animation
+      modelViewer.animationName = animationName;
+      
+      // Play animation twice
+      for (let i = 0; i < 2; i++) {
+        // Reset to beginning
+        modelViewer.currentTime = 0;
+        
+        // Play the animation
+        modelViewer.play();
+        
+        // Wait for animation to complete
+        await new Promise((resolve) => {
+          const onFinished = () => {
+            modelViewer.removeEventListener('finished', onFinished);
+            resolve();
+          };
+          modelViewer.addEventListener('finished', onFinished);
+        });
+      }
+      
+      // After playing twice, stop the animation completely
+      modelViewer.pause();
+      modelViewer.animationName = null;
+      
+    } catch (error) {
+      console.error('Animation error:', error);
+    } finally {
+      setIsAnimating(false);
+    }
+  }, [isAnimating]);
+
+  // Set up hotspot event listeners
+  React.useEffect(() => {
+    const modelViewer = modelViewerRef.current;
+    if (!modelViewer) return;
+
+    const handleLoad = () => {
+      // Add event listeners to all hotspots
+      model.hotspots?.forEach((hotspot) => {
+        const hotspotElement = modelViewer.querySelector(`[slot="${hotspot.slot}"]`);
+        if (hotspotElement) {
+          hotspotElement.addEventListener('click', () => {
+            handleHotspotClick(hotspot.animation);
+          });
+        }
+      });
+    };
+
+    modelViewer.addEventListener('load', handleLoad);
+    
+    return () => {
+      modelViewer.removeEventListener('load', handleLoad);
+    };
+  }, [model, handleHotspotClick]);
+
   return (
     <div className="min-h-screen bg-black">
+      {/* Custom Styles for Hotspots */}
+      <style>{`
+        .hotspot {
+          display: block;
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+          border: 2px solid #ffffff;
+          background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+          cursor: pointer;
+          transition: all 0.3s ease;
+          position: relative;
+          animation: pulse 2s infinite;
+        }
+
+        .hotspot:hover {
+          transform: scale(1.2);
+          background: linear-gradient(135deg, #1d4ed8, #1e40af);
+          box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
+        }
+
+        .hotspot:active {
+          transform: scale(1.1);
+        }
+
+        .hotspot::before {
+          content: '';
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: 8px;
+          height: 8px;
+          background: white;
+          border-radius: 50%;
+          transform: translate(-50%, -50%);
+        }
+
+        @keyframes pulse {
+          0% {
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4), 0 0 0 0 rgba(59, 130, 246, 0.7);
+          }
+          70% {
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4), 0 0 0 10px rgba(59, 130, 246, 0);
+          }
+          100% {
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4), 0 0 0 0 rgba(59, 130, 246, 0);
+          }
+        }
+
+        .annotation {
+          background: rgba(0, 0, 0, 0.8);
+          color: white;
+          position: absolute;
+          transform: translate(10px, 10px);
+          border-radius: 8px;
+          padding: 8px 12px;
+          font-size: 12px;
+          font-weight: 500;
+          white-space: nowrap;
+          pointer-events: none;
+          backdrop-filter: blur(4px);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        :not(:defined) > * {
+          display: none;
+        }
+      `}</style>
+
       {/* Header */}
       <div className="bg-[#121212] border-b border-gray-800 sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 py-4 sm:py-6">
@@ -314,6 +391,12 @@ function ARViewer({ model, onBack }) {
               <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white truncate">{model.name}</h1>
               <p className="text-gray-400 mt-1 text-sm sm:text-base line-clamp-1">{model.description}</p>
             </div>
+            {isAnimating && (
+              <div className="flex items-center gap-2 text-blue-400">
+                <div className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+                <span className="text-sm">Playing...</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -323,6 +406,7 @@ function ARViewer({ model, onBack }) {
         <div className="bg-[#3c3c3c] rounded-2xl sm:rounded-3xl shadow-lg overflow-hidden border border-gray-800">
           <div style={{ height: '60vh' }} className="bg-[#121212] relative">
             <model-viewer
+              ref={modelViewerRef}
               src={model.glbSrc}
               ar
               ar-modes="scene-viewer quick-look webxr"
@@ -333,6 +417,20 @@ function ARViewer({ model, onBack }) {
               style={{ width: '100%', height: '100%' }}
               className="rounded-t-2xl sm:rounded-t-3xl bg-[#242424]"
             >
+              {/* Render hotspots */}
+              {model.hotspots?.map((hotspot, index) => (
+                <button
+                  key={index}
+                  className="hotspot"
+                  slot={hotspot.slot}
+                  data-position={hotspot.position}
+                  data-normal={hotspot.normal}
+                  title={hotspot.title}
+                >
+                  <div className="annotation">{hotspot.title}</div>
+                </button>
+              ))}
+              
               <button 
                 slot="ar-button"
                 className="absolute bottom-4 sm:bottom-6 left-1/2 transform -translate-x-1/2 bg-white text-black px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl text-sm sm:text-base font-semibold hover:bg-gray-100 transition-all duration-300 shadow-lg flex items-center gap-2 sm:gap-3 group active:scale-95"
@@ -348,6 +446,21 @@ function ARViewer({ model, onBack }) {
               <div>
                 <h2 className="text-xl sm:text-2xl font-semibold text-white mb-3 sm:mb-4">About this model</h2>
                 <p className="text-gray-300 mb-4 sm:mb-6 leading-relaxed text-sm sm:text-base">{model.description}</p>
+                
+                {/* Interactive Hotspots Info */}
+                {model.hotspots && model.hotspots.length > 0 && (
+                  <div className="mt-4">
+                    <h3 className="text-lg font-semibold text-white mb-2">Interactive Hotspots</h3>
+                    <div className="space-y-2">
+                      {model.hotspots.map((hotspot, index) => (
+                        <div key={index} className="flex items-center gap-2 text-sm text-gray-300">
+                          <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                          <span>{hotspot.title} - Click to animate</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
               
               <div className="bg-[#242424] rounded-xl sm:rounded-2xl p-4 sm:p-6">
@@ -363,13 +476,19 @@ function ARViewer({ model, onBack }) {
                     <div className="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                       <span className="text-white text-xs">2</span>
                     </div>
-                    <p>Tap "View in My Room" for augmented reality</p>
+                    <p>Click the blue hotspots to trigger animations</p>
                   </div>
                   <div className="flex items-start gap-3">
                     <div className="w-6 h-6 bg-purple-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                       <span className="text-white text-xs">3</span>
                     </div>
-                    <p>Point your camera at a flat surface for best results</p>
+                    <p>Tap "View in My Room" for augmented reality</p>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-6 h-6 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <span className="text-white text-xs">4</span>
+                    </div>
+                    <p>Point your camera at a flat surface for best AR results</p>
                   </div>
                 </div>
               </div>

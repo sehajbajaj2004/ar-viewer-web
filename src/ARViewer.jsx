@@ -46,6 +46,24 @@ const models = [
       },
     ],
   },
+  {
+    id: 3,
+    name: "Alien",
+    thumbnail:
+      "https://plus.unsplash.com/premium_vector-1723830045164-ae4e5dea0f44?q=80&w=868&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    glbSrc: "/alien.glb",
+    usdzSrc: "/Alien_model.usdz",
+    description: "A Low Poly Alien Model.",
+    hotspots: [
+      {
+        slot: "hotspot-seat",
+        position: "0 0.5 0",
+        normal: "0 1 0",
+        animation: "Talk to Alien",
+        title: "Talk to Alien",
+      },
+    ],
+  },
 ];
 
 // Custom Particles Component

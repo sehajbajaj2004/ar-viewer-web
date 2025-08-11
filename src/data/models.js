@@ -1,0 +1,182 @@
+// src/data/models.js
+export const models = [
+  {
+    id: 1,
+    name: "Car",
+    thumbnail: "...",
+    glbSrc: "/car_mini.glb",
+    usdzSrc: "/model.usdz",
+    description: "A Low Poly Car Model.",
+    hotspots: [
+      {
+        slot: "hotspot-seat",
+        position: "0 0.5 0",
+        normal: "0 1 0",
+        animation: "Car Engine",
+        title: "Car Engine",
+      },
+    ],
+  },
+  {
+    id: 2,
+    name: "Bot",
+    thumbnail:
+      "https://plus.unsplash.com/premium_vector-1736862699214-09a672d1db6c?q=80&w=764&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    glbSrc: "/bot.glb",
+    usdzSrc: "/bot_model.usdz",
+    description: "A Low Poly Inspection Bot.",
+    hotspots: [
+      {
+        slot: "hotspot-seat",
+        position: "0 0.5 0",
+        normal: "0 1 0",
+        animation: "Start Inspecting",
+        title: "Start Inspecting",
+      },
+    ],
+  },
+  {
+    id: 3,
+    name: "Alien",
+    thumbnail:
+      "https://plus.unsplash.com/premium_vector-1723830045164-ae4e5dea0f44?q=80&w=868&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    glbSrc: "/alien.glb",
+    usdzSrc: "/Alien_model.usdz",
+    description: "A Low Poly Alien Model.",
+    hotspots: [
+      {
+        slot: "hotspot-seat",
+        position: "0 0.5 0",
+        normal: "0 1 0",
+        animation: "Talk to Alien",
+        title: "Talk to Alien",
+      },
+    ],
+  },
+  {
+    id: 4,
+    name: "Bird",
+    thumbnail:
+      "https://plus.unsplash.com/premium_vector-1715632451165-87c3a13df4c1?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    glbSrc: "/Bird/bird.glb",
+    usdzSrc: "/Bird/bird_model.usdz",
+    description: "A Low Poly Bird Model.",
+    hotspots: [
+      {
+        slot: "hotspot-seat",
+        position: "0 0.5 0",
+        normal: "0 1 0",
+        animation: "Make Bird Fly",
+        title: "Make Bird Fly",
+      },
+    ],
+  },
+  {
+    id: 5,
+    name: "Saloon",
+    thumbnail:
+      "https://plus.unsplash.com/premium_vector-1744282417028-a42c3736a7e2?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    glbSrc: "/Saloon/saloon.glb",
+    usdzSrc: "/Saloon/saloon_model.usdz",
+    description: "A Low Poly Saloon.",
+    hotspots: [
+      {
+        slot: "hotspot-seat",
+        position: "0 0.5 0",
+        normal: "0 1 0",
+        animation: "Open Gates.",
+        title: "Open Gates.",
+      },
+    ],
+  },
+  {
+    id: 6,
+    name: "Windmill",
+    thumbnail:
+      "https://plus.unsplash.com/premium_vector-1728553013177-07560e4011bd?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    glbSrc: "/windmill/windmill.glb",
+    usdzSrc: "/windmill/windmill_model.usdz",
+    description: "A Low Poly Windmill Model.",
+    hotspots: [
+      {
+        slot: "hotspot-seat",
+        position: "0.5 1.8 0",
+        normal: "0 1 0",
+        animation: "Blow Windmill.",
+        title: "Blow Windmill.",
+      },
+    ],
+  },
+  {
+    id: 7,
+    name: "Fan",
+    thumbnail:
+      "https://plus.unsplash.com/premium_vector-1711987870389-b8b9c678515a?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    glbSrc: "/fan/fan.glb",
+    usdzSrc: "/fan/fan_model.usdz",
+    description: "A Low Poly Fan Model.",
+    hotspots: [
+      {
+        slot: "hotspot-seat",
+        position: "0.5 1.8 0",
+        normal: "0 1 0",
+        animation: "Turn On Fan.",
+        title: "Turn On Fan.",
+      },
+    ],
+  },
+  {
+    id: 8,
+    name: "Clock",
+    thumbnail:
+      "https://plus.unsplash.com/premium_vector-1682299774024-134151442e05?q=80&w=1129&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    glbSrc: "/clock/clock.glb",
+    usdzSrc: "/clock/clock_model.usdz",
+    description: "A Low Poly Clock Model.",
+    hotspots: [
+      {
+        slot: "hotspot-seat",
+        position: "0 0 0",
+        normal: "0 1 0",
+        animation: "Flyby time.",
+        title: "Flyby time.",
+      },
+    ],
+  },
+  {
+    id: 9,
+    name: "Duck",
+    thumbnail:
+      "https://plus.unsplash.com/premium_vector-1715786847803-e1426befb30b?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    glbSrc: "/duck/duck.glb",
+    usdzSrc: "/duck/duck_model.usdz",
+    description: "A Low Poly duck Model.",
+    hotspots: [
+      {
+        slot: "hotspot-seat",
+        position: "0 0.5 0",
+        normal: "0 1 0",
+        animation: "Quack Duck.",
+        title: "Quack Duck.",
+      },
+    ],
+  },
+  {
+    id: 10,
+    name: "Disco",
+    thumbnail:
+      "https://plus.unsplash.com/premium_vector-1729110777717-f8ff4e9510e9?q=80&w=784&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    glbSrc: "/disco/disco.glb",
+    usdzSrc: "/disco/disco_model.usdz",
+    description: "A Low Poly disco Model.",
+    hotspots: [
+      {
+        slot: "hotspot-seat",
+        position: "0 5 0",
+        normal: "0 1 0",
+        animation: "Start Disco.",
+        title: "Start Disco.",
+      },
+    ],
+  },
+];

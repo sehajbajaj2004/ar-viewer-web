@@ -1,15 +1,8 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import { Play, Box } from "lucide-react";
-import Particles from "./ui/Particles";
+import Particles from "./Particles";
 
-const WelcomeScreen = React.memo(function WelcomeScreen() {
-  const navigate = useNavigate();
-
-  const handleStart = () => {
-    navigate("/models");
-  };
-
+const WelcomeScreen = React.memo(function WelcomeScreen({ onStart }) {
   return (
     <div className="min-h-screen bg-black flex items-center justify-center p-4 relative">
       <div
@@ -47,7 +40,7 @@ const WelcomeScreen = React.memo(function WelcomeScreen() {
         </div>
 
         <button
-          onClick={handleStart}
+          onClick={onStart}
           className="bg-white text-black px-8 sm:px-10 py-3 sm:py-4 rounded-2xl text-base sm:text-lg font-semibold hover:bg-gray-100 transform hover:scale-105 transition-all duration-300 shadow-lg shadow-white/10 flex items-center gap-3 mx-auto active:scale-95"
         >
           <Play className="w-5 h-5 sm:w-6 sm:h-6" />
